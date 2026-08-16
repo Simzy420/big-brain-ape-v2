@@ -104,6 +104,9 @@ Leave this window open. As long as it is running, the bot is online.
 /price AAPL
 /info NVDA
 /info ETH-USD
+/sma BTC-USD
+/sma NVDA
+/overview
 ```
 
 ---
@@ -139,23 +142,19 @@ Just leave the terminal open.
 
 ## Current Free Commands
 
-| Command              | What it does                          |
-|----------------------|---------------------------------------|
-| `/start`             | Welcome message                       |
-| `/help`              | List of commands                      |
-| `/price <ticker>`    | Current price + daily change          |
-| `/info <ticker>`     | Price, volume, market cap, 52w range  |
-
-More free commands are being added.
+| Command              | What it does                                      |
+|----------------------|---------------------------------------------------|
+| `/start`             | Welcome message                                   |
+| `/help`              | List of commands                                  |
+| `/price <ticker>`    | Current price + daily change                      |
+| `/info <ticker>`     | Price, volume, market cap, 52w range, sector      |
+| `/sma <ticker>`      | 20 / 50 / 200 day simple moving averages          |
+| `/overview`          | Quick look at S&P, Nasdaq, Dow, BTC, ETH, Gold... |
 
 ---
 
 ## Next Steps After This Works
 
-Once the bot is running, we can add:
-- Basic technicals (moving averages, etc.)
-- Simple watchlist
-- Market overview
-- Later: paid deep analysis features
+Once the bot is running, we can add more free features (watchlist, better technicals, alerts, etc.) and later the paid hire system.
 
 Just tell me what you want next.
