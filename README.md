@@ -5,9 +5,38 @@
 ### Core Principles
 - Telegram is the main way you talk to it
 - Only free data sources
-- No Firecrawl, no paid scraping credits, no paid LLM API keys
+- No Firecrawl, no paid scraping, no paid LLM API keys required
 - SuperGrok handles the heavy thinking (via Automations)
 - Everything else stays free
+
+---
+
+## Current Free Commands
+
+| Command | What it does |
+|---------|--------------|
+| `/start` | Welcome message |
+| `/help` | Full command list |
+| `/price <ticker>` | Current price + daily change |
+| `/info <ticker>` | Volume, market cap, 52-week range, sector |
+| `/sma <ticker>` | 20 / 50 / 200 day simple moving averages |
+| `/overview` | Quick snapshot of major indices + crypto |
+
+**Examples:**
+```
+/price BTC-USD
+/info NVDA
+/sma ETH-USD
+/overview
+```
+
+---
+
+## How to Run It
+
+Full step-by-step instructions are here:
+
+**→ [SETUP.md](SETUP.md)**
 
 ---
 
@@ -19,35 +48,26 @@ You (Telegram)
      ▼
 Telegram Bot (100% free)
      │
-     ├── Free market data (yfinance, CoinGecko free, FRED free tier)
-     ├── Simple commands (prices, basic technicals, alerts)
-     └── Daily deep analysis comes from Grok Automations
+     ├── Free market data (yfinance)
+     ├── Simple commands (prices, SMAs, overview)
+     └── Daily deep analysis comes from Grok Automations later
 ```
 
-### What is completely free
+### Completely free
 - Telegram Bot API
-- yfinance
-- CoinGecko free endpoints
-- FRED free API (macro data)
-- Running the bot on your own computer or free-tier hosting
+- yfinance data
+- Running the bot on your own computer
 
-### What uses SuperGrok
-- Deep daily macro + technical analysis
-- Complex trade ideas and reasoning
+### Uses SuperGrok
+- Deep daily macro + technical analysis (planned via Automations)
 
 ---
 
-## Current Status
+## Paid Features (Later)
 
-Building the free Telegram bot + data layer first.
-
-### Priority Order
-1. Telegram bot + basic free commands
-2. Free price & simple technical data
-3. Clean daily report format
-4. Easy hand-off to Grok Automations for deep analysis
+See **[docs/PAID_SYSTEM.md](docs/PAID_SYSTEM.md)** for the plan on how people can hire the bot and how you can make money from it.
 
 ---
 
-**Repo:** Simzy420/big-brain-ape-v2  
+**Repo:** [Simzy420/big-brain-ape-v2](https://github.com/Simzy420/big-brain-ape-v2)  
 **Brand:** Big Brain Ape
