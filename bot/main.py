@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-# Load environment variables
+# Load environment variables (works both locally and on Railway)
 load_dotenv()
 
-# Enable logging
+# Clearer logging for Railway dashboard
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 if not TOKEN:
-    raise ValueError("TELEGRAM_BOT_TOKEN is missing. Put it in your .env file.")
+    raise ValueError("TELEGRAM_BOT_TOKEN is missing. Add it in Railway Variables.")
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -31,6 +31,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/info <ticker> \u2014 Volume, market cap, 52w range, etc.\n"
         "/sma <ticker> \u2014 Simple moving averages (20 / 50 / 200)\n"
         "/overview \u2014 Quick look at major markets\n"
+        "/status \u2014 Check if bot is online\n"
         "/help \u2014 Full command list\n\n"
         "Only free data sources are used.\n"
         "Paid deep analysis features coming later."
@@ -46,6 +47,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/info <ticker> \u2014 Extra details (volume, market cap, 52w range...)\n"
         "/sma <ticker> \u2014 20 / 50 / 200 day simple moving averages\n"
         "/overview \u2014 Quick snapshot of major indices & crypto\n"
+        "/status \u2014 Check if the bot is online\n"
         "/help \u2014 This help message\n\n"
         "**Examples:**\n"
         "`/price AAPL`\n"
@@ -55,6 +57,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "`/overview`\n\n"
         "This bot uses only free data sources (yfinance)."
     )
+
+
+async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Simple online check"""
+    await update.message.reply_text("🦍 Big Brain Ape is online and running.")
 
 
 async def price(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -70,13 +77,13 @@ async def price(update: Update, context: ContextTypes.DEFAULT_TYPE):
         stock = yf.Ticker(ticker)
         info = stock.info
 
-        price = (
+        price_val = (
             info.get("regularMarketPrice")
             or info.get("currentPrice")
             or info.get("previousClose")
         )
 
-        if price is None:
+        if price_val is None:
             await update.message.reply_text(f"Could not find price data for `{ticker}`.")
             return
 
@@ -86,7 +93,7 @@ async def price(update: Update, context: ContextTypes.DEFAULT_TYPE):
         change_pct = info.get("regularMarketChangePercent")
 
         text = f"**{name}** (`{ticker}`)\n"
-        text += f"Price: **{price:,.4f} {currency}**\n"
+        text += f"Price: **{price_val:,.4f} {currency}**\n"
 
         if change is not None and change_pct is not None:
             sign = "+" if change >= 0 else ""
@@ -103,7 +110,7 @@ async def price(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /info command \u2014 more detailed free data"""
+    """Handle /info command"""
     if not context.args:
         await update.message.reply_text("Usage: `/info <ticker>`\nExample: `/info NVDA`")
         return
@@ -116,14 +123,14 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         info = stock.info
 
         name = info.get("shortName") or info.get("longName") or ticker
-        price = info.get("regularMarketPrice") or info.get("currentPrice") or info.get("previousClose")
+        price_val = info.get("regularMarketPrice") or info.get("currentPrice") or info.get("previousClose")
         currency = info.get("currency", "USD")
 
-        if price is None:
+        if price_val is None:
             await update.message.reply_text(f"Could not find data for `{ticker}`.")
             return
 
-        lines = [f"**{name}** (`{ticker}`)", f"Price: **{price:,.4f} {currency}**"]
+        lines = [f"**{name}** (`{ticker}`)", f"Price: **{price_val:,.4f} {currency}**"]
 
         if info.get("regularMarketVolume"):
             lines.append(f"Volume: {info['regularMarketVolume']:,}")
@@ -155,7 +162,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def sma(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /sma command \u2014 free simple moving averages"""
+    """Handle /sma command"""
     if not context.args:
         await update.message.reply_text("Usage: `/sma <ticker>`\nExample: `/sma BTC-USD`")
         return
@@ -164,7 +171,6 @@ async def sma(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         import yfinance as yf
-        import pandas as pd
 
         stock = yf.Ticker(ticker)
         hist = stock.history(period="1y")
@@ -230,17 +236,17 @@ async def overview(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 t = yf.Ticker(symbol)
                 info = t.info
-                price = info.get("regularMarketPrice") or info.get("previousClose")
+                price_val = info.get("regularMarketPrice") or info.get("previousClose")
                 change_pct = info.get("regularMarketChangePercent")
 
-                if price is None:
+                if price_val is None:
                     continue
 
                 if change_pct is not None:
                     sign = "+" if change_pct >= 0 else ""
-                    lines.append(f"{name}: **{price:,.2f}** ({sign}{change_pct:.2f}%)")
+                    lines.append(f"{name}: **{price_val:,.2f}** ({sign}{change_pct:.2f}%)")
                 else:
-                    lines.append(f"{name}: **{price:,.2f}**")
+                    lines.append(f"{name}: **{price_val:,.2f}**")
             except Exception:
                 continue
 
@@ -262,13 +268,16 @@ def main():
     # Register handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CommandHandler("status", status))
     app.add_handler(CommandHandler("price", price))
     app.add_handler(CommandHandler("info", info))
     app.add_handler(CommandHandler("sma", sma))
     app.add_handler(CommandHandler("overview", overview))
 
-    logger.info("Big Brain Ape bot starting...")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    logger.info("Big Brain Ape bot starting on Railway...")
+
+    # drop_pending_updates=True prevents old messages from flooding the bot on restart
+    app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
 
 
 if __name__ == "__main__":
